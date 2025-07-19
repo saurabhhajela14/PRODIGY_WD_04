@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Weather App (WeatherAPI)</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #0e1013;
+      color: #eee;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px;
+      min-height: 100vh;
+    }
+
+    h1 {
+      color: #00aeff;
+    }
+
+    .weather-box {
+      background: #1b1f24;
+      border-radius: 10px;
+      padding: 30px 40px;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(0,0,0,0.6);
+    }
+
+    input[type="text"], button {
+      font-size: 16px;
+      padding: 10px;
+      border-radius: 5px;
+      border: none;
+      margin-top: 15px;
+    }
+
+    input[type="text"] {
+      width: 80%;
+      max-width: 300px;
+    }
+
+    button {
+      background: #00aeff;
+      color: #fff;
+      margin-left: 10px;
+      cursor: pointer;
+    }
+
+    .info {
+      margin-top: 20px;
+    }
+
+    .info img {
+      width: 100px;
+      height: 100px;
+    }
+
+    .info h2 {
+      margin: 10px 0;
+    }
+
+    .error {
+      color: #f55;
+      margin-top: 20px;
+    }
+
+    @media (max-width: 480px) {
+      .weather-box {
+        padding: 20px;
+      }
+
+      input[type="text"] {
+        width: 100%;
+      }
+
+      button {
+        width: 100%;
+        margin-top: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Weather Forecast</h1>
+  <div class="weather-box">
+    <input type="text" id="cityInput" placeholder="Enter city (e.g., Delhi)" />
+    <button onclick="getWeather()">Search</button>
+    <div class="info" id="weatherInfo"></div>
+    <div class="error" id="errorMsg"></div>
+  </div>
+
+  <script>
+    const API_KEY = "d8e257b4c0e942bba04181706251907"; // ← Your actual API key
+
+    function getWeather() {
+      const city = document.getElementById("cityInput").value.trim();
+      const weatherDiv = document.getElementById("weatherInfo");
+      const errorDiv = document.getElementById("errorMsg");
+      weatherDiv.innerHTML = "";
+      errorDiv.innerText = "";
+
+      if (!city) {
+        errorDiv.innerText = "Please enter a city name.";
+        return;
+      }
+
+      fetch(`https://api.weatherapi.com/v1/current.json?key=${API_KEY}&q=${city}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.error) {
+            errorDiv.innerText = data.error.message;
+            return;
+          }
+
+          const { location, current } = data;
+
+          weatherDiv.innerHTML = `
+            <img src="${current.condition.icon}" alt="${current.condition.text}" />
+            <h2>${location.name}, ${location.country}</h2>
+            <p><strong>${current.temp_c}°C</strong> - ${current.condition.text}</p>
+            <p>Humidity: ${current.humidity}%</p>
+            <p>Wind Speed: ${current.wind_kph} kph</p>
+          `;
+        })
+        .catch(() => {
+          errorDiv.innerText = "Unable to fetch weather data.";
+        });
+    }
+  </script>
+</body>
+</html>
